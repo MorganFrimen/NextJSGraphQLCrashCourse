@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
-import react from 'react';
+
 import Image from 'next/image';
-import { Heading, Text, SimpleGrid } from '@chakra-ui/layout';
+import { Heading, Text } from '@chakra-ui/layout';
 
 const Characters = ({ char }) => {
   return (
