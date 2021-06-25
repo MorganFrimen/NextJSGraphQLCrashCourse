@@ -4,12 +4,24 @@ import Image from 'next/image';
 import { useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { API_URL } from '../urls';
-import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Stack,
+  useToast,
+  Input,
+  IconButton,
+} from '@chakra-ui/react';
+import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
 import Characters from '../components/Characters';
 
 export default function Home(results) {
   const initialState = results;
   const [characters, setCharacters] = useState(initialState.characters);
+  const [search, setSearch] = useState('');
+  const toast = useToast();
 
   return (
     <Flex direction="column" justify="center" align="center">
@@ -23,6 +35,50 @@ export default function Home(results) {
         <Heading as="h1" size="2xl" mb={8}>
           Rick and Morty
         </Heading>
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const results = await fetch('/api/SearchCharacters', {
+              method: 'post',
+              body: search,
+            });
+            const { characters, error } = await results.json();
+            if (error) {
+              toast({
+                position: 'bottom',
+                title: 'An error occurred.',
+                description: error,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              });
+            } else {
+              setCharacters(characters);
+            }
+          }}>
+          <Stack maxWidth="350px" width="100%" isInline mb={8}>
+            <Input
+              placeholder="Search"
+              value={search}
+              border="none"
+              onChange={(e) => setSearch(e.target.value)}></Input>
+            <IconButton
+              colorScheme="blue"
+              aria-label="Search Database"
+              icon={<SearchIcon />}
+              disabled={search === ''}
+              type="submit"></IconButton>
+            <IconButton
+              colorScheme="red"
+              aria-label="Reset button"
+              icon={<CloseIcon />}
+              disabled={search === ''}
+              onClick={async () => {
+                setSearch('');
+                setCharacters(initialState.characters);
+              }}></IconButton>
+          </Stack>
+        </form>
         <SimpleGrid columns={[1, 2, 3]} spacing="40px">
           {characters.map((char) => (
             <Characters key={char.id} char={char} />
